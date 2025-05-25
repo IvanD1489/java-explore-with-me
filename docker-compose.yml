@@ -14,7 +14,6 @@ services:
       - SPRING_DATASOURCE_PASSWORD=statspassword
       - SPRING_JPA_HIBERNATE_DDL_AUTO=none
       - SPRING_SQL_INIT_MODE=always
-    restart: unless-stopped
 
   stats-db:
     image: postgres:16.1
