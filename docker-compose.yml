@@ -29,6 +29,7 @@ services:
     restart: unless-stopped
 
   ewm-service:
+    image: alpine:latest
     container_name: explore_with_me_main_service_placeholder
     restart: "no"
 
