@@ -1,14 +1,62 @@
+version: '3.8'
+
 services:
   stats-server:
+    build:
+      context: ./stats-server
+    container_name: explore_with_me_stats_server
     ports:
       - "9090:9090"
+    depends_on:
+      - stats-db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/statsdb
+      - SPRING_DATASOURCE_USERNAME=statsuser
+      - SPRING_DATASOURCE_PASSWORD=statspassword
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+      - SPRING_SQL_INIT_MODE=always
+    restart: unless-stopped
 
   stats-db:
     image: postgres:16.1
+    container_name: explore_with_me_stats_database
+    ports:
+      - "6541:5432"
+    environment:
+      - POSTGRES_DB=statsdb
+      - POSTGRES_USER=statsuser
+      - POSTGRES_PASSWORD=statspassword
+    volumes:
+      - stats_data_volume:/var/lib/postgresql/data
+    restart: unless-stopped
 
   ewm-service:
+    container_name: explore_with_me_main_service
     ports:
       - "8080:8080"
+    depends_on:
+      - ewm-db
+      - stats-server
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewmdb
+      - SPRING_DATASOURCE_USERNAME=ewmuser
+      - SPRING_DATASOURCE_PASSWORD=ewmpassword
+      - STATS_SERVER_URL=http://stats-server:9090
+    restart: unless-stopped
 
   ewm-db:
     image: postgres:16.1
+    container_name: explore_with_me_main_database
+    ports:
+      - "6542:5432"
+    environment:
+      - POSTGRES_DB=ewmdb
+      - POSTGRES_USER=ewmuser
+      - POSTGRES_PASSWORD=ewmpassword
+    volumes:
+      - ewm_data_volume:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  stats_data_volume:
+  ewm_data_volume:
