@@ -28,5 +28,9 @@ services:
       - stats_data_volume:/var/lib/postgresql/data
     restart: unless-stopped
 
+  ewm-service:
+    container_name: explore_with_me_main_service_placeholder
+    restart: "no"
+
 volumes:
   stats_data_volume:
