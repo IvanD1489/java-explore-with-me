@@ -1,14 +1,43 @@
 services:
   stats-server:
+    build:
+      context: ./stats-server
+    container_name: stats-server
     ports:
       - "9090:9090"
+    depends_on:
+      stats-db:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/statsdb
+      - SPRING_DATASOURCE_USERNAME=statsuser
+      - SPRING_DATASOURCE_PASSWORD=statspassword
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+      - SPRING_SQL_INIT_MODE=always
+      - SERVER_PORT=9090
 
   stats-db:
     image: postgres:16.1
+    container_name: explore_with_me_stats_database
+    ports:
+      - "6541:5432"
+    environment:
+      - POSTGRES_DB=statsdb
+      - POSTGRES_USER=statsuser
+      - POSTGRES_PASSWORD=statspassword
+    volumes:
+      - stats_data_volume:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U statsuser -d statsdb -h stats-db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   ewm-service:
-    ports:
-      - "8080:8080"
+    image: alpine:latest
+    container_name: explore_with_me_main_service_placeholder
+    restart: "no"
 
-  ewm-db:
-    image: postgres:16.1
+volumes:
+  stats_data_volume:
