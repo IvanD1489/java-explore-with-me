@@ -57,7 +57,6 @@ public class EventServiceImpl implements EventService {
             throw new BadRequestException("rangeEnd must not be before rangeStart");
         }
         if (categories == null) {
-            categories = Collections.emptyList();
             return eventRepository.searchAdminEventsNoCategoryFilter(users, states, rangeStart, rangeEnd, pageRequest)
                     .stream()
                     .map(this::toFullDtoWithStats)
@@ -203,9 +202,8 @@ public class EventServiceImpl implements EventService {
         if (rangeStart != null && rangeEnd != null && rangeEnd.isBefore(rangeStart)) {
             throw new BadRequestException("rangeEnd must not be before rangeStart");
         }
-        List<Event> events = new ArrayList<>();
+        List<Event> events;
         if (categories == null) {
-            categories = Collections.emptyList();
             events = eventRepository.searchPublicEventsNoCategoryFilter(
                     text, paid, rangeStart, rangeEnd, pageRequest).getContent();
         } else {
