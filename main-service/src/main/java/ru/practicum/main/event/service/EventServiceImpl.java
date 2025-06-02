@@ -30,6 +30,7 @@ import ru.practicum.stats.dto.StatsDto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,6 +57,7 @@ public class EventServiceImpl implements EventService {
             throw new BadRequestException("rangeEnd must not be before rangeStart");
         }
         if (categories == null) {
+            categories = Collections.emptyList();
             return eventRepository.searchAdminEventsNoCategoryFilter(users, states, rangeStart, rangeEnd, pageRequest)
                     .stream()
                     .map(this::toFullDtoWithStats)
@@ -203,6 +205,7 @@ public class EventServiceImpl implements EventService {
         }
         List<Event> events = new ArrayList<>();
         if (categories == null) {
+            categories = Collections.emptyList();
             events = eventRepository.searchPublicEventsNoCategoryFilter(
                     text, paid, rangeStart, rangeEnd, pageRequest).getContent();
         } else {
