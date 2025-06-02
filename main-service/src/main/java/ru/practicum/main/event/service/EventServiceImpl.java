@@ -29,8 +29,6 @@ import ru.practicum.stats.dto.HitDto;
 import ru.practicum.stats.dto.StatsDto;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
