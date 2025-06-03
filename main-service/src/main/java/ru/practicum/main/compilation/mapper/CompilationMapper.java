@@ -44,7 +44,7 @@ public class CompilationMapper {
         String uri = "/events/" + eventId;
         LocalDateTime start = LocalDateTime.of(0, 1, 1, 0, 0);
         LocalDateTime end = LocalDateTime.now();
-        List<StatsDto> stats = statsClient.getStats(start, end, List.of(uri), false).getBody();
+        List<StatsDto> stats = statsClient.getStats(start, end, List.of(uri), true).getBody();
         if (stats != null && !stats.isEmpty()) {
             return stats.getFirst().getHits();
         }

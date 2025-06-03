@@ -243,7 +243,7 @@ public class EventServiceImpl implements EventService {
         String uri = "/events/" + eventId;
         LocalDateTime start = LocalDateTime.of(0, 1, 1, 0, 0);
         LocalDateTime end = LocalDateTime.now();
-        ResponseEntity<List<StatsDto>> response = statsClient.getStats(start, end, List.of(uri), false);
+        ResponseEntity<List<StatsDto>> response = statsClient.getStats(start, end, List.of(uri), true);
         List<StatsDto> stats = response.getBody();
         if (stats != null && !stats.isEmpty()) {
             return stats.getFirst().getHits();
