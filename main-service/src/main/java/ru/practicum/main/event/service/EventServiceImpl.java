@@ -8,7 +8,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.category.model.Category;
 import ru.practicum.main.category.repository.CategoryRepository;
 import ru.practicum.main.event.dto.*;
@@ -28,7 +27,6 @@ import ru.practicum.main.request.repository.RequestRepository;
 import ru.practicum.main.user.model.User;
 import ru.practicum.main.user.repository.UserRepository;
 import ru.practicum.stats.client.StatsClient;
-import ru.practicum.stats.dto.HitDto;
 import ru.practicum.stats.dto.StatsDto;
 
 import java.time.LocalDateTime;
@@ -37,7 +35,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
@@ -50,7 +47,6 @@ public class EventServiceImpl implements EventService {
     private final StatsClient statsClient;
 
     @Override
-    @Transactional(readOnly = true)
     public List<EventFullDto> searchAdminEvents(List<Long> users, List<EventState> states, List<Long> categories,
                                                 LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
         if (rangeStart != null && rangeEnd != null && rangeEnd.isBefore(rangeStart)) {
@@ -129,7 +125,6 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<EventShortDto> getUserEvents(Long userId, int from, int size) {
         PageRequest pageRequest = PageRequest.of(from / size, size);
         return eventRepository.findByInitiatorId(userId, pageRequest)
@@ -139,7 +134,6 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public EventFullDto getUserEvent(Long userId, Long eventId) {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new NotFoundException("Event not found"));
@@ -188,7 +182,6 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<EventShortDto> searchPublicEvents(String text, List<Long> categories, Boolean paid,
                                                   LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                                   Boolean onlyAvailable, String sort, int from, int size, HttpServletRequest request) {
@@ -201,29 +194,15 @@ public class EventServiceImpl implements EventService {
 
         List<Event> events = eventRepository.findAll(spec, pageable).getContent();
 
-        statsClient.addHit(HitDto.builder()
-                .app("main-service")
-                .uri(request.getRequestURI())
-                .ip(request.getRemoteAddr())
-                .timestamp(LocalDateTime.now())
-                .build());
-
         return events.stream()
                 .map(this::toShortDtoWithStats)
                 .collect(Collectors.toList());
     }
 
     @Override
-    @Transactional(readOnly = true)
     public EventFullDto getPublicEvent(Long eventId, HttpServletRequest request) {
         Event event = eventRepository.findByIdAndState(eventId, EventState.PUBLISHED)
                 .orElseThrow(() -> new NotFoundException("Event not found"));
-        statsClient.addHit(HitDto.builder()
-                .app("main-service")
-                .uri(request.getRequestURI())
-                .ip(request.getRemoteAddr())
-                .timestamp(LocalDateTime.now())
-                .build());
         return toFullDtoWithStats(event);
     }
 

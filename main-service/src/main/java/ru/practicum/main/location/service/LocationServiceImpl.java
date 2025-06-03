@@ -2,7 +2,6 @@ package ru.practicum.main.location.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.exception.NotFoundException;
 import ru.practicum.main.location.dto.LocationDto;
 import ru.practicum.main.location.mapper.LocationMapper;
@@ -14,7 +13,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class LocationServiceImpl implements LocationService {
 
     private final LocationRepository locationRepository;
@@ -28,7 +26,6 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public LocationDto getLocation(Long id) {
         Location location = locationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Location not found"));
@@ -36,7 +33,6 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<LocationDto> getAllLocations() {
         return locationRepository.findAll().stream()
                 .map(locationMapper::toLocationDto)
