@@ -3,7 +3,9 @@ package ru.practicum.main.event.service;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +16,7 @@ import ru.practicum.main.event.mapper.EventMapper;
 import ru.practicum.main.event.model.Event;
 import ru.practicum.main.event.model.EventState;
 import ru.practicum.main.event.repository.EventRepository;
+import ru.practicum.main.event.repository.EventSpecifications;
 import ru.practicum.main.exception.BadRequestException;
 import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.NotFoundException;
@@ -50,18 +53,12 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly = true)
     public List<EventFullDto> searchAdminEvents(List<Long> users, List<EventState> states, List<Long> categories,
                                                 LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
-        PageRequest pageRequest = PageRequest.of(from / size, size);
         if (rangeStart != null && rangeEnd != null && rangeEnd.isBefore(rangeStart)) {
             throw new BadRequestException("rangeEnd must not be before rangeStart");
         }
-        if (categories == null) {
-            return eventRepository.searchAdminEventsNoCategoryFilter(users, states, rangeStart, rangeEnd, pageRequest)
-                    .stream()
-                    .map(this::toFullDtoWithStats)
-                    .collect(Collectors.toList());
-        }
-        return eventRepository.searchAdminEventsWithCategoryFilter(users, states, categories, rangeStart, rangeEnd, pageRequest)
-                .stream()
+        Pageable pageable = PageRequest.of(from / size, size);
+        Specification<Event> spec = EventSpecifications.adminFilter(users, states, categories, rangeStart, rangeEnd);
+        return eventRepository.findAll(spec, pageable).stream()
                 .map(this::toFullDtoWithStats)
                 .collect(Collectors.toList());
     }
@@ -195,19 +192,14 @@ public class EventServiceImpl implements EventService {
     public List<EventShortDto> searchPublicEvents(String text, List<Long> categories, Boolean paid,
                                                   LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                                   Boolean onlyAvailable, String sort, int from, int size, HttpServletRequest request) {
-        PageRequest pageRequest = PageRequest.of(from / size, size,
-                "VIEWS".equalsIgnoreCase(sort) ? Sort.by(Sort.Direction.DESC, "views") : Sort.by(Sort.Direction.ASC, "eventDate"));
         if (rangeStart != null && rangeEnd != null && rangeEnd.isBefore(rangeStart)) {
             throw new BadRequestException("rangeEnd must not be before rangeStart");
         }
-        List<Event> events;
-        if (categories == null) {
-            events = eventRepository.searchPublicEventsNoCategoryFilter(
-                    text, paid, rangeStart, rangeEnd, pageRequest).getContent();
-        } else {
-            events = eventRepository.searchPublicEventsWithCategoryFilter(
-                    text, categories, paid, rangeStart, rangeEnd, pageRequest).getContent();
-        }
+        Sort sortOrder = "VIEWS".equalsIgnoreCase(sort) ? Sort.by(Sort.Direction.DESC, "views") : Sort.by(Sort.Direction.ASC, "eventDate");
+        Pageable pageable = PageRequest.of(from / size, size, sortOrder);
+        Specification<Event> spec = EventSpecifications.publicFilter(text, categories, paid, rangeStart, rangeEnd);
+
+        List<Event> events = eventRepository.findAll(spec, pageable).getContent();
 
         statsClient.addHit(HitDto.builder()
                 .app("main-service")
@@ -215,6 +207,7 @@ public class EventServiceImpl implements EventService {
                 .ip(request.getRemoteAddr())
                 .timestamp(LocalDateTime.now())
                 .build());
+
         return events.stream()
                 .map(this::toShortDtoWithStats)
                 .collect(Collectors.toList());
