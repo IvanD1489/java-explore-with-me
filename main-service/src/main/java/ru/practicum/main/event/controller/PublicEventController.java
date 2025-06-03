@@ -11,6 +11,7 @@ import ru.practicum.stats.client.StatsClient;
 import ru.practicum.stats.dto.HitDto;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -39,6 +40,7 @@ public class PublicEventController {
                 .ip(request.getRemoteAddr())
                 .timestamp(LocalDateTime.now())
                 .build());
+        if (categories == null) categories = Collections.emptyList();
         return eventService.searchPublicEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request);
     }
 

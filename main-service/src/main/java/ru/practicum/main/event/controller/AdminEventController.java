@@ -10,6 +10,7 @@ import ru.practicum.main.event.model.EventState;
 import ru.practicum.main.event.service.EventService;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -27,6 +28,7 @@ public class AdminEventController {
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
             @RequestParam(defaultValue = "0") int from,
             @RequestParam(defaultValue = "10") int size) {
+        if (categories == null) categories = Collections.emptyList();
         return eventService.searchAdminEvents(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 
