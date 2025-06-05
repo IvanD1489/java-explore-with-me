@@ -1,9 +1,11 @@
 package ru.practicum.main.category.service;
 
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.category.dto.CategoryDto;
 import ru.practicum.main.category.dto.NewCategoryDto;
 import ru.practicum.main.category.mapper.CategoryMapper;
@@ -18,12 +20,14 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
     private final CategoryMapper categoryMapper;
 
+    @Transactional(rollbackFor = { ConflictException.class })
     @Override
     public CategoryDto createCategory(NewCategoryDto dto) {
         if (categoryRepository.existsByName(dto.getName())) {
@@ -33,6 +37,7 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryMapper.toCategoryDto(categoryRepository.save(category));
     }
 
+    @Transactional(rollbackFor = { ConflictException.class, NotFoundException.class })
     @Override
     public CategoryDto updateCategory(Long catId, CategoryDto dto) {
         Category category = categoryRepository.findById(catId)
@@ -44,6 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryMapper.toCategoryDto(categoryRepository.save(category));
     }
 
+    @Transactional(rollbackFor = { ConflictException.class, NotFoundException.class })
     @Override
     public void deleteCategory(Long catId) {
         Category category = categoryRepository.findById(catId)
@@ -54,6 +60,7 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.deleteById(catId);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<CategoryDto> getCategories(int from, int size) {
         return categoryRepository.findAll(PageRequest.of(from / size, size, Sort.by("id")))
@@ -62,6 +69,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CategoryDto getCategory(Long catId) {
         Category category = categoryRepository.findById(catId)

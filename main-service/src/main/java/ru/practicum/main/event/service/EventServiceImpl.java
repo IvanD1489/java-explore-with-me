@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.category.model.Category;
 import ru.practicum.main.category.repository.CategoryRepository;
 import ru.practicum.main.event.dto.*;
@@ -33,6 +34,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Transactional
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
@@ -46,6 +48,7 @@ public class EventServiceImpl implements EventService {
     private final LocationMapper locationMapper;
     private final StatsClient statsClient;
 
+    @Transactional(readOnly = true)
     @Override
     public List<EventFullDto> searchAdminEvents(List<Long> users, List<EventState> states, List<Long> categories,
                                                 LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
@@ -59,6 +62,7 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(rollbackFor = { BadRequestException.class, ConflictException.class, NotFoundException.class })
     @Override
     public EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest request) {
         Event event = eventRepository.findById(eventId)
@@ -107,6 +111,7 @@ public class EventServiceImpl implements EventService {
         return toFullDtoWithStats(eventRepository.save(event));
     }
 
+    @Transactional(rollbackFor = { NotFoundException.class })
     @Override
     public EventFullDto createEvent(Long userId, NewEventDto dto) {
         User user = userRepository.findById(userId)
@@ -124,6 +129,7 @@ public class EventServiceImpl implements EventService {
         return toFullDtoWithStats(eventRepository.save(event));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<EventShortDto> getUserEvents(Long userId, int from, int size) {
         PageRequest pageRequest = PageRequest.of(from / size, size);
@@ -133,6 +139,7 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public EventFullDto getUserEvent(Long userId, Long eventId) {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
@@ -140,6 +147,7 @@ public class EventServiceImpl implements EventService {
         return toFullDtoWithStats(event);
     }
 
+    @Transactional(rollbackFor = { ConflictException.class, NotFoundException.class })
     @Override
     public EventFullDto updateUserEvent(Long userId, Long eventId, UpdateEventUserRequest request) {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
@@ -181,6 +189,7 @@ public class EventServiceImpl implements EventService {
         return toFullDtoWithStats(eventRepository.save(event));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<EventShortDto> searchPublicEvents(String text, List<Long> categories, Boolean paid,
                                                   LocalDateTime rangeStart, LocalDateTime rangeEnd,
@@ -199,6 +208,7 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public EventFullDto getPublicEvent(Long eventId, HttpServletRequest request) {
         Event event = eventRepository.findByIdAndState(eventId, EventState.PUBLISHED)

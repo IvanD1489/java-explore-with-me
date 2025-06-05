@@ -2,6 +2,7 @@ package ru.practicum.main.request.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.event.model.Event;
 import ru.practicum.main.event.model.EventState;
 import ru.practicum.main.event.repository.EventRepository;
@@ -26,11 +27,13 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class RequestServiceImpl implements RequestService {
+
     private final RequestRepository requestRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final RequestMapper requestMapper;
 
+    @Transactional(rollbackFor = { ConflictException.class, NotFoundException.class })
     @Override
     public ParticipationRequestDto createRequest(Long userId, Long eventId) {
         User user = userRepository.findById(userId)
@@ -66,6 +69,7 @@ public class RequestServiceImpl implements RequestService {
         return requestMapper.toParticipationRequestDto(saved);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ParticipationRequestDto> getUserRequests(Long userId) {
         userRepository.findById(userId)
@@ -75,6 +79,7 @@ public class RequestServiceImpl implements RequestService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(rollbackFor = { ConflictException.class, NotFoundException.class })
     @Override
     public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
         Request request = requestRepository.findById(requestId)
@@ -86,6 +91,7 @@ public class RequestServiceImpl implements RequestService {
         return requestMapper.toParticipationRequestDto(requestRepository.save(request));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ParticipationRequestDto> getEventRequests(Long userId, Long eventId) {
         Event event = eventRepository.findById(eventId)
@@ -98,6 +104,7 @@ public class RequestServiceImpl implements RequestService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(rollbackFor = { ConflictException.class, NotFoundException.class })
     @Override
     public EventRequestStatusUpdateResult updateRequestStatuses(Long userId, Long eventId, EventRequestStatusUpdateRequest requestDto) {
         Event event = eventRepository.findById(eventId)

@@ -3,12 +3,14 @@ package ru.practicum.main.request.controller;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
 import ru.practicum.main.request.service.RequestService;
 
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/users/{userId}/requests")
 @RequiredArgsConstructor

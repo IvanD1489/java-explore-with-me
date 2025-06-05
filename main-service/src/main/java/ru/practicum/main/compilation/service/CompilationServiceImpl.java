@@ -3,6 +3,7 @@ package ru.practicum.main.compilation.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.compilation.dto.CompilationDto;
 import ru.practicum.main.compilation.dto.NewCompilationDto;
 import ru.practicum.main.compilation.dto.UpdateCompilationRequest;
@@ -11,6 +12,7 @@ import ru.practicum.main.compilation.model.Compilation;
 import ru.practicum.main.compilation.repository.CompilationRepository;
 import ru.practicum.main.event.model.Event;
 import ru.practicum.main.event.repository.EventRepository;
+import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.NotFoundException;
 
 import java.util.Collections;
@@ -19,13 +21,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Transactional
 @Service
 @RequiredArgsConstructor
 public class CompilationServiceImpl implements CompilationService {
+
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
     private final CompilationMapper compilationMapper;
 
+    @Transactional(rollbackFor = { NotFoundException.class })
     @Override
     public CompilationDto createCompilation(NewCompilationDto dto) {
         Set<Event> events = Collections.emptySet();
@@ -41,6 +46,7 @@ public class CompilationServiceImpl implements CompilationService {
         return compilationMapper.toCompilationDto(saved);
     }
 
+    @Transactional(rollbackFor = { NotFoundException.class })
     @Override
     public void deleteCompilation(Long compId) {
         if (!compilationRepository.existsById(compId)) {
@@ -49,6 +55,7 @@ public class CompilationServiceImpl implements CompilationService {
         compilationRepository.deleteById(compId);
     }
 
+    @Transactional(rollbackFor = { NotFoundException.class })
     @Override
     public CompilationDto updateCompilation(Long compId, UpdateCompilationRequest dto) {
         Compilation compilation = compilationRepository.findById(compId)
@@ -67,6 +74,7 @@ public class CompilationServiceImpl implements CompilationService {
         return compilationMapper.toCompilationDto(updated);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<CompilationDto> getCompilations(Boolean pinned, int from, int size) {
         PageRequest pageRequest = PageRequest.of(from / size, size);
@@ -83,6 +91,7 @@ public class CompilationServiceImpl implements CompilationService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CompilationDto getCompilation(Long compId) {
         Compilation compilation = compilationRepository.findById(compId)
