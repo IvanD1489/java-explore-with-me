@@ -12,7 +12,6 @@ import ru.practicum.main.compilation.model.Compilation;
 import ru.practicum.main.compilation.repository.CompilationRepository;
 import ru.practicum.main.event.model.Event;
 import ru.practicum.main.event.repository.EventRepository;
-import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.NotFoundException;
 
 import java.util.Collections;
@@ -30,7 +29,7 @@ public class CompilationServiceImpl implements CompilationService {
     private final EventRepository eventRepository;
     private final CompilationMapper compilationMapper;
 
-    @Transactional(rollbackFor = { NotFoundException.class })
+    @Transactional(rollbackFor = {NotFoundException.class})
     @Override
     public CompilationDto createCompilation(NewCompilationDto dto) {
         Set<Event> events = Collections.emptySet();
@@ -46,7 +45,7 @@ public class CompilationServiceImpl implements CompilationService {
         return compilationMapper.toCompilationDto(saved);
     }
 
-    @Transactional(rollbackFor = { NotFoundException.class })
+    @Transactional(rollbackFor = {NotFoundException.class})
     @Override
     public void deleteCompilation(Long compId) {
         if (!compilationRepository.existsById(compId)) {
@@ -55,7 +54,7 @@ public class CompilationServiceImpl implements CompilationService {
         compilationRepository.deleteById(compId);
     }
 
-    @Transactional(rollbackFor = { NotFoundException.class })
+    @Transactional(rollbackFor = {NotFoundException.class})
     @Override
     public CompilationDto updateCompilation(Long compId, UpdateCompilationRequest dto) {
         Compilation compilation = compilationRepository.findById(compId)

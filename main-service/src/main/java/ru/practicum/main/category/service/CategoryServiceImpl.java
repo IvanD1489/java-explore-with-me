@@ -27,7 +27,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final EventRepository eventRepository;
     private final CategoryMapper categoryMapper;
 
-    @Transactional(rollbackFor = { ConflictException.class })
+    @Transactional(rollbackFor = {ConflictException.class})
     @Override
     public CategoryDto createCategory(NewCategoryDto dto) {
         if (categoryRepository.existsByName(dto.getName())) {
@@ -37,7 +37,7 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryMapper.toCategoryDto(categoryRepository.save(category));
     }
 
-    @Transactional(rollbackFor = { ConflictException.class, NotFoundException.class })
+    @Transactional(rollbackFor = {ConflictException.class, NotFoundException.class})
     @Override
     public CategoryDto updateCategory(Long catId, CategoryDto dto) {
         Category category = categoryRepository.findById(catId)
@@ -49,7 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryMapper.toCategoryDto(categoryRepository.save(category));
     }
 
-    @Transactional(rollbackFor = { ConflictException.class, NotFoundException.class })
+    @Transactional(rollbackFor = {ConflictException.class, NotFoundException.class})
     @Override
     public void deleteCategory(Long catId) {
         Category category = categoryRepository.findById(catId)

@@ -62,7 +62,7 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(rollbackFor = { BadRequestException.class, ConflictException.class, NotFoundException.class })
+    @Transactional(rollbackFor = {BadRequestException.class, ConflictException.class, NotFoundException.class})
     @Override
     public EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest request) {
         Event event = eventRepository.findById(eventId)
@@ -111,7 +111,7 @@ public class EventServiceImpl implements EventService {
         return toFullDtoWithStats(eventRepository.save(event));
     }
 
-    @Transactional(rollbackFor = { NotFoundException.class })
+    @Transactional(rollbackFor = {NotFoundException.class})
     @Override
     public EventFullDto createEvent(Long userId, NewEventDto dto) {
         User user = userRepository.findById(userId)
@@ -147,7 +147,7 @@ public class EventServiceImpl implements EventService {
         return toFullDtoWithStats(event);
     }
 
-    @Transactional(rollbackFor = { ConflictException.class, NotFoundException.class })
+    @Transactional(rollbackFor = {ConflictException.class, NotFoundException.class})
     @Override
     public EventFullDto updateUserEvent(Long userId, Long eventId, UpdateEventUserRequest request) {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)

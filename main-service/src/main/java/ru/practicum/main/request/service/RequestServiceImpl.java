@@ -33,7 +33,7 @@ public class RequestServiceImpl implements RequestService {
     private final UserRepository userRepository;
     private final RequestMapper requestMapper;
 
-    @Transactional(rollbackFor = { ConflictException.class, NotFoundException.class })
+    @Transactional(rollbackFor = {ConflictException.class, NotFoundException.class})
     @Override
     public ParticipationRequestDto createRequest(Long userId, Long eventId) {
         User user = userRepository.findById(userId)
@@ -79,7 +79,7 @@ public class RequestServiceImpl implements RequestService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(rollbackFor = { ConflictException.class, NotFoundException.class })
+    @Transactional(rollbackFor = {ConflictException.class, NotFoundException.class})
     @Override
     public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
         Request request = requestRepository.findById(requestId)
@@ -104,7 +104,7 @@ public class RequestServiceImpl implements RequestService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(rollbackFor = { ConflictException.class, NotFoundException.class })
+    @Transactional(rollbackFor = {ConflictException.class, NotFoundException.class})
     @Override
     public EventRequestStatusUpdateResult updateRequestStatuses(Long userId, Long eventId, EventRequestStatusUpdateRequest requestDto) {
         Event event = eventRepository.findById(eventId)

@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
-    @Transactional(rollbackFor = { ConflictException.class })
+    @Transactional(rollbackFor = {ConflictException.class})
     @Override
     public UserDto createUser(NewUserRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(rollbackFor = { NotFoundException.class })
+    @Transactional(rollbackFor = {NotFoundException.class})
     @Override
     public void deleteUser(Long userId) {
         if (!userRepository.existsById(userId)) {
