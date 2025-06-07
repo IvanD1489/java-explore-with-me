@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 public class LocationDto {
     private Long id;
 
-    @NotBlank
     @Size(max = 255)
     private String name;
 
@@ -30,7 +29,6 @@ public class LocationDto {
     @DecimalMax(value = "180.0")
     private Float lon;
 
-    @NotNull
     @Positive
     private Float radius;
 

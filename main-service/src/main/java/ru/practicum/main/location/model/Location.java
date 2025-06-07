@@ -17,7 +17,6 @@ public class Location {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
     private String name;
 
     @Column(length = 1000)
@@ -29,9 +28,7 @@ public class Location {
     @Column(nullable = false)
     private Float lon;
 
-    @Column(nullable = false)
     private Float radius; // радиус зоны, в метрах
 
-    @Column(nullable = false)
     private LocalDateTime createdOn;
 }
