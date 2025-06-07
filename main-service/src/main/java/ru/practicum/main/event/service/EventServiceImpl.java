@@ -228,7 +228,15 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toEventShortDto(event, confirmedRequests, views);
     }
 
-    private long getEventViews(Long eventId) {
+    @Override
+    @Transactional(readOnly = true)
+    public long getConfirmedRequests(Long eventId) {
+        return requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long getEventViews(Long eventId) {
         String uri = "/events/" + eventId;
         LocalDateTime start = LocalDateTime.of(0, 1, 1, 0, 0);
         LocalDateTime end = LocalDateTime.now();

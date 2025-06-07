@@ -3,11 +3,20 @@ package ru.practicum.main.location.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import ru.practicum.main.event.dto.EventShortDto;
+import ru.practicum.main.event.mapper.EventMapper;
+import ru.practicum.main.event.model.Event;
+import ru.practicum.main.event.repository.EventRepository;
+import ru.practicum.main.event.service.EventService;
+import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.NotFoundException;
 import ru.practicum.main.location.dto.LocationDto;
 import ru.practicum.main.location.mapper.LocationMapper;
 import ru.practicum.main.location.model.Location;
 import ru.practicum.main.location.repository.LocationRepository;
+import ru.practicum.main.request.model.RequestStatus;
+import ru.practicum.main.request.repository.RequestRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +28,8 @@ public class LocationServiceImpl implements LocationService {
 
     private final LocationRepository locationRepository;
     private final LocationMapper locationMapper;
+    private final EventMapper eventMapper;
+    private final EventService eventService;
 
     @Override
     public LocationDto createLocation(LocationDto dto) {
@@ -49,6 +60,30 @@ public class LocationServiceImpl implements LocationService {
         if (!locationRepository.existsById(id)) {
             throw new NotFoundException("Location not found");
         }
+        if (locationRepository.existsByLocationId(id)) {
+            throw new ConflictException("Location is used in events and cannot be deleted");
+        }
         locationRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Location getLocationEntity(Long id) {
+        return locationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Location not found"));
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<EventShortDto> getEventsByLocation(Long locationId) {
+        Location location = getLocationEntity(locationId);
+        List<Event> events = locationRepository.findEventsInLocation(location.getLat(), location.getLon());
+        return events.stream()
+                .map(event -> eventMapper.toEventShortDto(
+                        event,
+                        eventService.getConfirmedRequests(event.getId()),
+                        eventService.getEventViews(event.getId())
+                ))
+                .collect(Collectors.toList());
     }
 }
