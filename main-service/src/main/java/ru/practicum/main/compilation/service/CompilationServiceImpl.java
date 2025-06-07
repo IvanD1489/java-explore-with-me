@@ -29,7 +29,6 @@ public class CompilationServiceImpl implements CompilationService {
     private final EventRepository eventRepository;
     private final CompilationMapper compilationMapper;
 
-    @Transactional(rollbackFor = {NotFoundException.class})
     @Override
     public CompilationDto createCompilation(NewCompilationDto dto) {
         Set<Event> events = Collections.emptySet();
@@ -45,7 +44,6 @@ public class CompilationServiceImpl implements CompilationService {
         return compilationMapper.toCompilationDto(saved);
     }
 
-    @Transactional(rollbackFor = {NotFoundException.class})
     @Override
     public void deleteCompilation(Long compId) {
         if (!compilationRepository.existsById(compId)) {
@@ -54,7 +52,6 @@ public class CompilationServiceImpl implements CompilationService {
         compilationRepository.deleteById(compId);
     }
 
-    @Transactional(rollbackFor = {NotFoundException.class})
     @Override
     public CompilationDto updateCompilation(Long compId, UpdateCompilationRequest dto) {
         Compilation compilation = compilationRepository.findById(compId)

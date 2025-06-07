@@ -62,7 +62,6 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(rollbackFor = {BadRequestException.class, ConflictException.class, NotFoundException.class})
     @Override
     public EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest request) {
         Event event = eventRepository.findById(eventId)
@@ -111,7 +110,6 @@ public class EventServiceImpl implements EventService {
         return toFullDtoWithStats(eventRepository.save(event));
     }
 
-    @Transactional(rollbackFor = {NotFoundException.class})
     @Override
     public EventFullDto createEvent(Long userId, NewEventDto dto) {
         User user = userRepository.findById(userId)
@@ -147,7 +145,6 @@ public class EventServiceImpl implements EventService {
         return toFullDtoWithStats(event);
     }
 
-    @Transactional(rollbackFor = {ConflictException.class, NotFoundException.class})
     @Override
     public EventFullDto updateUserEvent(Long userId, Long eventId, UpdateEventUserRequest request) {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
@@ -228,7 +225,15 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toEventShortDto(event, confirmedRequests, views);
     }
 
-    private long getEventViews(Long eventId) {
+    @Override
+    @Transactional(readOnly = true)
+    public long getConfirmedRequests(Long eventId) {
+        return requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long getEventViews(Long eventId) {
         String uri = "/events/" + eventId;
         LocalDateTime start = LocalDateTime.of(0, 1, 1, 0, 0);
         LocalDateTime end = LocalDateTime.now();
