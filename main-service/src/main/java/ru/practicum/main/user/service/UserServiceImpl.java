@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
                 .map(userMapper::toUserDto)
                 .collect(Collectors.toList());
     }
-    
+
     @Override
     public void deleteUser(Long userId) {
         if (!userRepository.existsById(userId)) {
