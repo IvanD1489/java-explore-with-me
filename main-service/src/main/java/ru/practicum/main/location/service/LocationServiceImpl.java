@@ -3,11 +3,9 @@ package ru.practicum.main.location.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.mapper.EventMapper;
 import ru.practicum.main.event.model.Event;
-import ru.practicum.main.event.repository.EventRepository;
 import ru.practicum.main.event.service.EventService;
 import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.NotFoundException;
@@ -15,8 +13,6 @@ import ru.practicum.main.location.dto.LocationDto;
 import ru.practicum.main.location.mapper.LocationMapper;
 import ru.practicum.main.location.model.Location;
 import ru.practicum.main.location.repository.LocationRepository;
-import ru.practicum.main.request.model.RequestStatus;
-import ru.practicum.main.request.repository.RequestRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,7 +50,6 @@ public class LocationServiceImpl implements LocationService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(rollbackFor = {NotFoundException.class})
     @Override
     public void deleteLocation(Long id) {
         if (!locationRepository.existsById(id)) {

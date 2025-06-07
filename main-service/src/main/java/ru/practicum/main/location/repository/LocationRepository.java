@@ -1,10 +1,10 @@
 package ru.practicum.main.location.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import ru.practicum.main.event.model.Event;
-import ru.practicum.main.location.model.Location;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import ru.practicum.main.event.model.Event;
+import ru.practicum.main.location.model.Location;
 
 import java.util.List;
 
